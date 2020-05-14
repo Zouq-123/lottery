@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			*{margin:0;padding:0;}
+			ul{list-style:none;}
+			a{text-decoration:none;}
+			.box-lottery{width:560px;height:560px;background:url(img/bg_lottery.png) no-repeat center center;margin:10px auto;position:relative;}
+			.box-lottery>.lotter-wrap{width:100%;height:100%;background:url(img/bg_lottery_f.png) no-repeat center center;transform:rotate(0deg);transition:transform 2s ease-in-out 0s;}
+			.box-lottery>.lotter-wrap>div{position:absolute;width:100px;height:280px;padding-top:40px;box-sizing:border-box;text-align:center;font-size:20px;color:#fff;top:0px;left:50%;transform-origin:bottom center;}
+			.box-lottery>a{display:block;width:161px;height:161px;background:url(img/btn_lottery.png) no-repeat center center;position:absolute;top:200px;left:200px;}
+			.box-lottery>a::after{content:"";display:block;width:41px;height:39px;background:url(img/icon_point.png) no-repeat center;position:absolute;left:59px;top:-30px;}
+	
+		</style>
+	</head>
+	<body>
+		<div class="box-lottery">
+			<div class="lotter-wrap">
+
+			</div>
+			<a href="javascript:void(0)" class="lottery-btn"></a>
+		</div>
+		<script>
+			class lottery{
+				// 定义构造函数
+				constructor(wrap,list,btn) {
+					// 定义奖品添加的位置
+					this.wrap = wrap;
+					
+					// 定义中奖的奖品数组
+				    this.list = list;
+					
+					// 定义抽奖按钮
+					this.btn = btn;
+					
+					//定义随机旋转角度
+					this.randomDeg = 0;
+					
+					this.flag = true;
+					
+					this.deg = 360/this.list.length;			
+				}
+				// 创建一个初始化方法
+				init(){
+					this.createPrize()
+					this.addClick()
+				}
+				// 创建奖品
+				createPrize(){
+					// 将list中的所有奖品循环创建
+					this.list.forEach((item,key)=>{
+						let div = this.create('div')
+						let name = this.create('p')
+						name.innerHTML = item.name;
+						div.appendChild(name)
+						
+						let prize = this.create('p')
+						prize.innerHTML = item.prize;
+						div.appendChild(prize)
+						
+						let img = this.create('img')
+						img.src = item.src;
+						div.appendChild(img)
+						
+						// console.log(div)
+						
+						// 设置每一个div的位置
+						div.style.transform = `translateX(-50%) rotate(calc(${key}*${this.deg}deg + ${this.deg}deg/2))`;
+						
+						this.wrap.appendChild(div)
+						
+					})
+				}
+				// 创建新元素
+				create(el){
+					return document.createElement(el)
+				}
+				// 添加点击事件
+				addClick(){
+					console.log(this.btn)
+					this.btn.onclick = ()=>{
+						// 转盘旋转
+						this.rotateLottery()
+					}
+				}
+				// 设置旋转转盘
+				rotateLottery(){
+					this.flag = true;
+					this.wrap.style.transition = 'transform 2s ease-in-out 0s';
+					// 设置随机度数
+					this.randomDeg = Math.floor(Math.random()*360);
+					
+					//假设需要旋转5圈
+					let endDeg = 360*5 + this.randomDeg;
+					console.log(endDeg)
+					this.wrap.style.transform = `rotate(${endDeg}deg)`
+					
+					// 判断动画是否过渡完成   webkitTransitionEnd  事件可能会多次执行
+					// addEventListener绑定事件句柄
+					this.wrap.addEventListener('webkitTransitionEnd',()=>{
+						// console.log('过渡执行完成')
+						
+						if(this.flag){
+							this.flag = false;
+							
+							// 弹出中奖信息
+							this.getPrize()
+							
+							this.wrap.style.transitionProperty = 'none';
+							//去除回拉效果
+							this.wrap.style.transform = 'rotate(0deg)'
+						}
+					})
+				}
+				//获取中奖信息
+				getPrize(){
+					// 计算出当前所指的div
+					// let index = 8 - Math.ceil(this.randomDeg/45)
+					let index = this.list.length- Math.ceil(this.randomDeg/this.deg)
+					// console.log(index)
+					// console.log(this.list[index])
+					let msg = `${this.list[index].name}${this.list[index].prize}`;
+					alert(msg)
+				}					
+			}
+			
+			
+			window.onload = function(){
+				let list = [
+					{
+						name:'京东卡',
+						prize:'10元',
+						src:'img/lottery_01.png'
+					},
+					{
+						name:'京东卡',
+						prize:'20元',
+						src:'img/lottery_02.png'
+					},
+					{
+						name:'京东卡',
+						prize:'50元',
+						src:'img/lottery_03.png'
+					},
+					{
+						name:'京东卡',
+						prize:'100元',
+						src:'img/lottery_04.png'
+					},
+					{
+						name:'',
+						prize:'谢谢惠顾',
+						src:'img/lottery_05.png'
+					},
+					{
+						name:'京东卡',
+						prize:'200元',
+						src:'img/lottery_06.png'
+					},
+					{
+						name:'京东卡',
+						prize:'500元',
+						src:'img/lottery_07.png'
+					},
+					{
+						name:'IQOO Pro',
+						prize:'手机',
+						src:'img/lottery_08.png'
+					}
+				]
+				
+				let wrap = document.getElementsByClassName('lotter-wrap')[0]
+				let btn= document.getElementsByClassName('lottery-btn')[0]
+				
+				let lott = new lottery(wrap,list,btn)
+				lott.init()
+			}
+		</script>
+	</body>
+</html>
